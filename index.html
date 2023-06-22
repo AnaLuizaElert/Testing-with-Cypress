@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aplicativo de Vídeo</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        #videoPlayer {
+            width: 100%;
+        }
+
+        .thumbnail {
+            width: 200px;
+            cursor: pointer;
+            margin: 10px;
+        }
+
+        #commentSection {
+            display: none;
+        }
+
+        #videoContainer {
+            display: none;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="form-row">
+            <div class="col-lg-11">
+                <input type="text" class="form-control" id="search" placeholder="Pesquisar vídeos" onkeyup="handleEnter(event)">
+            </div>
+            <div class="col-lg-1">
+                <button class="btn btn-primary" onclick="filterVideos()">🔍</button>
+            </div>
+        </div>
+
+        <div id="videoContainer" class="mb-4">
+            <video id="videoPlayer" controls></video>
+            <p id="viewCount"></p>
+            <div id="commentSection">
+                <input type="text" id="commentInput" class="form-control mt-3 mb-3" placeholder="Deixe um comentário" onkeyup="postComment(event)">
+                <div id="comments"></div>
+            </div>
+        </div>
+
+        <div id="videoList"></div>
+    </div>
+
+    <script>
+        var videos = [
+            {
+                src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+                thumbnail: 'https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217',
+                title: 'Big Buck Bunny',
+                views: 0
+            },
+            {
+                src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+                thumbnail: 'https://peach.blender.org/wp-content/uploads/bbb-splash.png',
+                title: 'Elephants Dream',
+                views: 0
+            }
+            // Adicione mais vídeos conforme necessário
+        ];
+
+        var videoPlayer = document.getElementById('videoPlayer');
+        var videoContainer = document.getElementById('videoContainer');
+        var commentSection = document.getElementById('commentSection');
+        var videoList = document.getElementById('videoList');
+        var commentInput = document.getElementById('commentInput');
+        var comments = document.getElementById('comments');
+        var search = document.getElementById('search');
+        var viewCount = document.getElementById('viewCount');
+
+        function renderVideoList(filteredVideos) {
+            videoList.style.display = 'block'; 
+            videoContainer.style.display = 'none';
+            videoList.innerHTML = filteredVideos.map(function(video, index) {
+                return '<div class="video-thumbnail">' +
+                '<img class="thumbnail" src="' + video.thumbnail + '" onclick="playVideo(' + index + ')">' +
+                '<div class="video-title">' + video.title + '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        function playVideo(index) {
+            var video = videos[index];
+            video.views++;
+            viewCount.innerText = video.views + ' visualizações';
+            videoPlayer.src = video.src;
+            videoContainer.style.display = 'block';
+            videoList.style.display = 'none';
+            commentSection.style.display = 'block';
+            videoPlayer.play();
+        }
+
+        function postComment(event) {
+            if (event.key === 'Enter') {
+                var comment = commentInput.value;
+                var date = new Date();
+                var dateString = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                comments.innerHTML = '<p><strong>' + dateString + '</strong>: ' + comment + '</p>' + comments.innerHTML;
+                commentInput.value = '';
+            }
+        }
+
+        function filterVideos() {
+            var keyword = search.value.toLowerCase();
+            var filteredVideos = videos.filter(function(video) {
+                return video.title.toLowerCase().includes(keyword);
+            });
+            renderVideoList(filteredVideos);
+        }
+
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                filterVideos();
+            }
+        }
+
+        renderVideoList(videos);
+    </script>
+</body>
+</html>
